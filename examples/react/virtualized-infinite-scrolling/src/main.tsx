@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom/client'
 
 import './index.css'
 
-//3 TanStack Libraries!!!
+// 3 TanStack Libraries!!!
 import {
   ColumnDef,
+  ColumnResizeMode,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
@@ -26,6 +27,9 @@ const fetchSize = 25
 
 function App() {
   const rerender = React.useReducer(() => ({}), {})[1]
+
+  const [columnResizeMode, setColumnResizeMode] =
+    React.useState<ColumnResizeMode>('onChange')
 
   //we need a reference to the scrolling element for logic down below
   const tableContainerRef = React.useRef<HTMLDivElement>(null)
@@ -130,10 +134,13 @@ function App() {
     state: {
       sorting,
     },
+    columnResizeMode,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     debugTable: true,
+    debugHeaders: true,
+    debugColumns: true,
   })
 
   const { rows } = table.getRowModel()
@@ -193,6 +200,15 @@ function App() {
                           }[header.column.getIsSorted() as string] ?? null}
                         </div>
                       )}
+                      <div
+                        {...{
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                          className: `resizer ${
+                            header.column.getIsResizing() ? 'isResizing' : ''
+                          }`,
+                        }}
+                      />
                     </th>
                   )
                 })}
